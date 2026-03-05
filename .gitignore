@@ -5,3 +5,4 @@ dist/
 build/
 __pycache__/
 *.egg-info/
+face_landmarker.task

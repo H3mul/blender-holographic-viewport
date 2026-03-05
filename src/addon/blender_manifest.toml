@@ -24,8 +24,8 @@ tags = ["3D View", "User Interface", "Tracking"]
 
 [dependencies]
 wheels = [
-    "mediapipe==0.10.11",
-    "opencv-python==4.9.0.80",
+    "mediapipe==0.10.32",
+    "opencv-python==4.13.0.92",
 ]
 
 [permissions]
