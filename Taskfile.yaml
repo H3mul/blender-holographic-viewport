@@ -1,0 +1,41 @@
+version: '3'
+run: once
+
+vars:
+  EXT_ID: "holographic_viewport"  # Must match 'id' in blender_manifest.toml
+  ADDON_SRC_DIR: "{{.ROOT_DIR}}\\src\\addon"  # Directory containing the add-on source code
+  BUILD_DIR: "{{.ROOT_DIR}}\\build"
+  ZIP_PATH: '{{.BUILD_DIR}}\{{.EXT_ID}}.zip'
+  BLENDER_EXT_PATH: '{{.USERPROFILE}}\AppData\Roaming\Blender Foundation\Blender\5.0\extensions\user_default' # Adjust for your Blender version and OS
+
+tasks:
+
+  install-deps:
+    desc: "Install project dependencies"
+    cmds:
+      - pip install -e .[dev]
+
+  symlink-addon:
+    desc: Sync the source code directly to Blender's extension folder
+    cmds:
+      - cmd: powershell.exe New-Item -ItemType SymbolicLink -Path "'{{.BLENDER_EXT_PATH}}\{{.EXT_ID}}'" -Target "'{{.ADDON_SRC_DIR}}'" -Force
+        platforms: [windows]
+
+
+  build:
+    desc: "Bundle local wheels and package the blender extension"
+    dir: "{{.ADDON_SRC_DIR}}"
+    cmds:
+      # -a (or --all-wheels) downloads wheels for all platforms for distribution
+      # Omit --all-wheels for faster local testing (downloads current platform only)
+      - bbext --all-wheels #--split-platforms
+    sources:
+      - "{{.ADDON_SRC_DIR}}/blender_manifest.toml"
+      - "{{.ADDON_SRC_DIR}}/**/*.py"
+    generates:
+      - dist/*.zip
+
+  build:clean:
+    desc: "Remove local build artifacts"
+    cmds:
+      - rm -rf wheels/ dist/ build/
