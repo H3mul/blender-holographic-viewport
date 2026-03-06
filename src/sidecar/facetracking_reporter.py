@@ -1,29 +1,28 @@
-import cv2
-from cv2_enumerate_cameras import enumerate_cameras
-
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-import socket
+import argparse
 import json
 import logging
-import sys
-import argparse
-import time
 import os
+import socket
+import sys
+import time
+
+import cv2
+import mediapipe as mp
+from cv2_enumerate_cameras import enumerate_cameras
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+
 
 # Configure logging
 def setup_logging(verbose=False):
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
-        level=level,
-        format='%(asctime)s [%(levelname)s] %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
+        level=level, format="%(asctime)s [%(levelname)s] %(message)s", handlers=[logging.StreamHandler(sys.stdout)]
     )
 
+
 logger = logging.getLogger(__name__)
+
 
 def list_video_devices():
     """Lists available video devices using cv2_enumerate_cameras."""
@@ -38,6 +37,7 @@ def list_video_devices():
         print(f"  Backend: {device.backend}")
         print("-" * 50)
 
+
 def main():
     # Calculate default model path relative to this script
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -48,53 +48,28 @@ def main():
         "--video-device",
         type=int,
         default=-1,
-        help="Index of the video device (webcam) to use (selects the first available device by default)"
+        help="Index of the video device (webcam) to use (selects the first available device by default)",
     )
-    parser.add_argument(
-        "--list-video-devices",
-        action="store_true",
-        help="List all available video devices and exit"
-    )
-    parser.add_argument(
-        "--debug-viewer",
-        action="store_true",
-        help="Display a debug window with the processed image"
-    )
+    parser.add_argument("--list-video-devices", action="store_true", help="List all available video devices and exit")
+    parser.add_argument("--debug-viewer", action="store_true", help="Display a debug window with the processed image")
     parser.add_argument(
         "--model-path",
         type=str,
         default=default_model_path,
-        help=f"Path to the MediaPipe face landmarker model file (default: {default_model_path})"
+        help=f"Path to the MediaPipe face landmarker model file (default: {default_model_path})",
     )
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable debug-level logging")
     parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Enable debug-level logging"
+        "--address", type=str, default="127.0.0.1", help="Target IP address for UDP tracking data (default: 127.0.0.1)"
     )
-    parser.add_argument(
-        "--address",
-        type=str,
-        default="127.0.0.1",
-        help="Target IP address for UDP tracking data (default: 127.0.0.1)"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=5005,
-        help="Target UDP port for tracking data (default: 5005)"
-    )
+    parser.add_argument("--port", type=int, default=5005, help="Target UDP port for tracking data (default: 5005)")
     parser.add_argument(
         "--interval",
         type=int,
         default=-1,
-        help="Interval for capturing frames in milliseconds (default: -1, as fast as possible)"
+        help="Interval for capturing frames in milliseconds (default: -1, as fast as possible)",
     )
-    parser.add_argument(
-        "--max-faces",
-        type=int,
-        default=3,
-        help="Maximum number of faces to track (default: 3)"
-    )
+    parser.add_argument("--max-faces", type=int, default=3, help="Maximum number of faces to track (default: 3)")
     args = parser.parse_args()
 
     # Setup logging based on verbose flag
@@ -122,12 +97,14 @@ def main():
             min_face_presence_confidence=0.5,
             min_tracking_confidence=0.5,
             output_face_blendshapes=False,
-            output_facial_transformation_matrixes=False
+            output_facial_transformation_matrixes=False,
         )
         landmarker = vision.FaceLandmarker.create_from_options(options)
     except Exception as e:
         logger.error(f"Failed to initialize Face Landmarker: {e}")
-        logger.error("Ensure you have downloaded 'face_landmarker.task' and placed it in the same directory as this script.")
+        logger.error(
+            "Ensure you have downloaded 'face_landmarker.task' and placed it in the same directory as this script."
+        )
         return
 
     if args.video_device == -1:
@@ -182,7 +159,7 @@ def main():
 
             if results.face_landmarks:
                 tracking_data = []
-                
+
                 for idx, face_landmarks in enumerate(results.face_landmarks):
                     # Landmark 168 is the bridge of the nose in the face mesh
                     nose_bridge = face_landmarks[168]
@@ -190,7 +167,7 @@ def main():
                     # Values are normalized [0.0, 1.0]
                     coords = [nose_bridge.x, nose_bridge.y, nose_bridge.z]
                     tracking_data.append(coords)
-                    
+
                     logger.debug(f"Face {idx}: x={nose_bridge.x:.4f}, y={nose_bridge.y:.4f}, z={nose_bridge.z:.4f}")
 
                     # Draw landmarks if debug viewer is active
@@ -212,7 +189,7 @@ def main():
                 logger.debug("No faces detected.")
 
             if args.debug_viewer:
-                cv2.imshow('Face Tracking Debug View', frame)
+                cv2.imshow("Face Tracking Debug View", frame)
 
             # Check for Esc key (27) to exit (if not handled by wait logic)
             if cv2.waitKey(1) & 0xFF == 27:
@@ -225,6 +202,7 @@ def main():
         sock.close()
         if args.debug_viewer:
             cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()

@@ -22,23 +22,16 @@ making the 3D viewport look like a holographic window into your display.
 # Category of the add-on
 tags = ["3D View", "User Interface", "Tracking"]
 
-[dependencies]
-wheels = [
+dependencies = [
     "mediapipe==0.10.32",
     "opencv-python==4.13.0.92",
+    "cv2-enumerate-cameras==1.3.3"
 ]
 
 [permissions]
 files = "Required to access internal source files"
 
 [build]
-source = "./src"
 build = "./build"
 dist = "./dist"
 wheels-path = "./wheels"
-
-# paths = [
-#     "__init__.py",
-#     "LICENSE",
-#     "src/**/*"
-# ]

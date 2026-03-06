@@ -1,0 +1,14 @@
+{
+  "languages": {
+    "Python": {
+      "language_servers": [ "ruff", "!basedpyright" ],
+      "formatter": [
+        {
+          "language_server": {
+            "name": "ruff"
+          }
+        }
+      ]
+    }
+  }
+}

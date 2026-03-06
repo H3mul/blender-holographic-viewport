@@ -19,3 +19,31 @@ dev = [
     "blender-extension-builder",
     "fake-bpy-module-5.0",
 ]
+
+[tool.ruff]
+# Match Blender's Python version (3.10, 3.11, etc.)
+target-version = "py311"
+line-length = 120 # Commonly used in Blender add-ons for bpy layout
+indent-width = 4
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+
+[tool.ruff.lint]
+# Add essential rules for code quality
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+ignore = [
+    "E501", # Ignore line length violations (handled by formatter)
+    "N801", # Ignore class method naming convention
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["bpy", "mathutils", "blf", "gpu"]
