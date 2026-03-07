@@ -1,6 +1,5 @@
 import bpy
 
-
 class HOLOGRAM_PT_Panel(bpy.types.Panel):
     bl_label = "Holographic Viewport"
     bl_idname = "HOLOGRAM_PT_Panel"
@@ -24,10 +23,8 @@ class HOLOGRAM_PT_Panel(bpy.types.Panel):
             box.prop(props, "smoothing", slider=True)
             box.prop(props, "sensitivity")
 
-
 def register():
     bpy.utils.register_class(HOLOGRAM_PT_Panel)
-
 
 def unregister():
     bpy.utils.unregister_class(HOLOGRAM_PT_Panel)

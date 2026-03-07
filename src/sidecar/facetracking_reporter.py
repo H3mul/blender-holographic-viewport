@@ -12,6 +12,7 @@ from cv2_enumerate_cameras import enumerate_cameras
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
+logger = logging.getLogger(__name__)
 
 # Configure logging
 def setup_logging(verbose=False):
@@ -20,23 +21,18 @@ def setup_logging(verbose=False):
         level=level, format="%(asctime)s [%(levelname)s] %(message)s", handlers=[logging.StreamHandler(sys.stdout)]
     )
 
-
-logger = logging.getLogger(__name__)
-
-
 def list_video_devices():
     """Lists available video devices using cv2_enumerate_cameras."""
 
-    print("\nAvailable Video Devices:")
-    print("-" * 50)
+    logger.info("\nAvailable Video Devices:")
+    logger.info("-" * 50)
     devices = enumerate_cameras()
     for device in devices:
-        print(f"Index: {device.index}")
-        print(f"  Name: {device.name}")
-        print(f"  Path: {device.path}")
-        print(f"  Backend: {device.backend}")
-        print("-" * 50)
-
+        logger.info(f"Index: {device.index}")
+        logger.info(f"  Name: {device.name}")
+        logger.info(f"  Path: {device.path}")
+        logger.info(f"  Backend: {device.backend}")
+        logger.info("-" * 50)
 
 def main():
     # Calculate default model path relative to this script
@@ -202,7 +198,6 @@ def main():
         sock.close()
         if args.debug_viewer:
             cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
